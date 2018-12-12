@@ -1,0 +1,55 @@
+    public class GameData
+    {
+        public string Id { get; set; }
+        public DateTime DateTime { get; set; }
+        public int Target { get; set; }
+        public List<RoundData> Rounds { get; set; }
+    }
+
+    public class RoundData
+    {
+        public int Number { get; set; }
+        public TeamData FirstTeam { get; set; }
+        public TeamData SecondTeam { get; set; }
+    }
+
+    public class TeamData
+    {
+        public int PointsBefore { get; set; }
+        public int PointsAfter { get; set; }
+
+        public List<PlayerData> Players { get; set; }
+    }
+
+    public class PlayerData
+    {
+        public int Id { get; set; }
+        public int Position { get; set; }
+        public int Level { get; set; }
+        public List<Card> Cards8 { get; set; }
+        public bool CalledGrand { get; set; }
+        public List<Card> Cards6 { get; set; }
+        public bool CalledTichu { get; set; }
+        public Card LeftCardGiven { get; set; }
+        public Card RightCardGiven { get; set; }
+        public Card MateCardGiven { get; set; }
+    }
+	
+    public class Card
+    {
+        public Shapes Shape { get; set; }
+        public int Value { get; set; }
+    }
+	
+    public enum Shapes
+    {
+        Spades = 0,
+        Hearts = 1,
+        Diamond = 2,
+        Clubs = 3,
+        MahJong = 4,
+        Dogs = 5,
+        Dragon = 6,
+        Phoinex = 7
+    }
+
