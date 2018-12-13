@@ -145,7 +145,7 @@ class tichuData():
         self.allcards=[]
         self.matecard=[]
         self.made=[]
-        
+
     def loaddata(self, matches):
         """Recurse through all the game/player combos. If grandtichu is called, load the data """
         teams = ['FirstTeam','SecondTeam']
@@ -188,7 +188,33 @@ class tichuData():
                                 self.made.append(0)
         self.allcards = np.array(self.allcards)
         self.made = np.array(self.made)
+        self.find_feature_vector()
         return
+
+    def find_feature_vector(self):
+        """
+        From self.allcards, compute the feature vectors and add to self.feature_vector and self.feature_vector_extend
+        """
+        # One example to set the dimension
+        hd = handData(self.allcards[0,:])
+        fv = np.zeros([len(self.made),len(hd.feature_vector)])
+        fv_extend = np.zeros([len(self.made),len(hd.feature_vector_extend)])
+        compress_hand = np.zeros([len(self.made),len(hd.compress_hand)])
+        self.fv_plus_compress_hand = np.zeros([len(self.made),len(hd.fv_plus_compress_hand)])
+        self.ultimate = np.zeros([len(self.made),len(hd.ultimate)])
+        # Loop over games 
+        for i, handvec in enumerate(self.allcards):
+            hd = handData(handvec)
+            fv[i] = hd.feature_vector
+            fv_extend[i] = hd.feature_vector_extend
+            compress_hand[i] = hd.compress_hand
+            self.fv_plus_compress_hand[i] = hd.fv_plus_compress_hand
+            self.ultimate[i] = hd.ultimate
+        self.feature_vector = fv
+        self.feature_vector_extend = fv_extend
+        self.compress_hand = compress_hand
+        self.feature_explanation = hd.feature_explanation
+
     
     def otherteam(self, team):
         if team=='FirstTeam':
@@ -197,6 +223,19 @@ class tichuData():
             return 'FirstTeam'
         else:
             raise ValueError('unknown team name')
+    def opponent_tichu_condition(self, rounddata, team, ip):
+        """
+        See if the team satisfies a completing hand condition as the opponent
+        """
+        ourteam = rounddata[team]['Players']
+        oppteam =  rounddata[self.otherteam(team)]['Players']
+        if ourteam[0]['CalledTichu'] + ourteam[1]['CalledTichu'] == 0:  # this team does not call tichu
+            # opponent calls tichu
+            if oppteam[0]['CalledTichu'] + oppteam[1]['CalledTichu'] > 0: 
+                # teammate does not go out first
+                if ourteam[1-ip]['FinishOrder'] != 1:
+                    return True
+        return False
     
     def hand2vec(self, handlist):
         """handlist is a list of dictionary, each dict has dict['Shape'] and dict['Value']
@@ -977,7 +1016,7 @@ class handDataGrand():
 
     def reduce_grand_tichu(self):
         selectfeature = np.array([0,1,2,5])
-        w = np.array([2,5,5,4])
+        w = np.array([1,3,3,3])
         return np.array([1,sum(self.feature_vector[selectfeature]*w)])
         
         
